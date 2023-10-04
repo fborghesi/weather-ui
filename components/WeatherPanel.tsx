@@ -1,7 +1,7 @@
+import * as Progress from 'react-native-progress';
 import { useEffect, useState } from 'react';
 import { StyleSheet, View, Text, ImageBackground, ImageSourcePropType } from 'react-native';
 import Weather from '../types/Weather';
-import * as Progress from 'react-native-progress';
 
 interface WeatherPanelProps {
     weather: Weather,
@@ -38,27 +38,27 @@ const WeatherPanel = (props: WeatherPanelProps) => {
                 <View>
                     <View style={styles.containerRow}>
                         <Text style={styles.label}>Current Temperature:</Text>
-                        <Text style={styles.data}> {temp} &deg; {props.imperial ? 'F' : 'C'}</Text>
+                        <Text style={styles.data} testID="temp_label"> {temp} &deg; {props.imperial ? 'F' : 'C'}</Text>
                     </View>
                     <View style={styles.containerRow}>
                         <Text style={styles.label}>Feels Like:</Text>
-                        <Text style={styles.data}> {feelsLike} &deg; {props.imperial ? 'F' : 'C'}</Text>
+                        <Text style={styles.data} testID="feels_like_label"> {feelsLike} &deg; {props.imperial ? 'F' : 'C'}</Text>
                     </View>
                     <View style={styles.containerRow}>
                         <Text style={styles.label}>Cloud Coverage:</Text>
-                        <Text style={styles.data}> {props.weather.current.cloud} %</Text>
+                        <Text style={styles.data} testID='cloud_coverage_label'> {props.weather.current.cloud} %</Text>
                     </View>
                     <View style={styles.containerRow}>
                         <Text style={styles.label}>Humidity:</Text>
-                        <Text style={styles.data}> {props.weather.current.humidity} %</Text>
+                        <Text style={styles.data} testID='humidity_label'> {props.weather.current.humidity} %</Text>
                     </View>
                     <View style={styles.containerRow}>
                         <Text style={styles.label}>Wind direction:</Text>
-                        <Text style={styles.data}> {props.weather.current.wind_dir}</Text>
+                        <Text style={styles.data} testID='wind_direction_label'> {props.weather.current.wind_dir}</Text>
                     </View>
                     <View style={styles.containerRow}>
                         <Text style={styles.label}>Wind speed:</Text>
-                        <Text style={styles.data}> {windSpeed} {props.imperial ? "m":"km"}/h</Text>
+                        <Text style={styles.data} testID='wind_speed_label'> {windSpeed} {props.imperial ? "m":"km"}/h</Text>
                     </View>
 
 
