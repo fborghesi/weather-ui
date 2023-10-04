@@ -9,25 +9,64 @@ interface WeatherPanelProps {
 };
 
 const weatherCodeImgMap = {
-    
     '1000': require(`../assets/images/weather/sunny-background.jpg`),
     '1003': require(`../assets/images/weather/partly-cloudy-background.jpg`),
     '1009': require(`../assets/images/weather/night-background.jpg`),
 };
 
 
+class LabelText {
+    temp: string;
+    feelsLike: string;
+    cloudCoverage: string;
+    humidity: string;
+    windSpeed: string;
+    windDir: string;
+
+    constructor(temp: string = '', feelsLike: string = '', 
+    cloudCoverage: string = '', humidity: string = '', windSpeed: string = '',
+    windDir: string = '') {
+        this.temp = temp;
+        this.feelsLike = feelsLike; 
+        this.cloudCoverage = cloudCoverage;
+        this.humidity  = humidity; 
+        this.windSpeed = windSpeed; 
+        this.windDir = windDir;
+    }
+}
+
 const WeatherPanel = (props: WeatherPanelProps) => {
-    const temp = props.imperial ? props.weather.current.temp_f: props.weather.current.temp_c;
-    const feelsLike = props.imperial ? props.weather.current.feelslike_f: props.weather.current.feelslike_c;
-    const windSpeed = props.imperial ? props.weather.current.wind_mph: props.weather.current.wind_kph;
-    const conditionCode = props.weather.current.condition.code;
+    const [labelText, setLabelText] = useState<LabelText>(new LabelText());
     const [backgroundImg, setBackgroundImg] = useState<ImageSourcePropType|null>(null);
 
     useEffect(() => {
-        const image = weatherCodeImgMap['' + conditionCode];
-        setBackgroundImg(image);
+        if (props.weather) {
+            const image = weatherCodeImgMap['' + props.weather.current.condition.code];
+            setBackgroundImg(image);
+        }
     }, []);
 
+    useEffect(() => {
+        let labelText;
+
+        if (props.weather) {
+            const temp = `${props.imperial ? props.weather.current.temp_f : props.weather.current.temp_c} ° ${props.imperial ? 'F' : 'C'}`;
+            const feelsLike = `${props.imperial ? props.weather.current.feelslike_f: props.weather.current.feelslike_c} ° ${props.imperial ? 'F' : 'C'}`;
+            const cloudCoverage = `${props.weather.current.cloud} %`;
+            const humidity = `${props.weather.current.humidity} %`;
+            const windSpeed = `${props.imperial ? props.weather.current.wind_mph: props.weather.current.wind_kph} ${props.imperial ? 'm' : 'km'}/h`;
+            const windDir = `${props.weather.current.wind_dir}`;
+            
+            labelText = new LabelText(temp, feelsLike, cloudCoverage, 
+                humidity, windSpeed, windDir);
+        }
+        else {
+            labelText = new LabelText();
+        }
+
+        setLabelText(labelText);
+    }, [props.weather]);
+    
     if (backgroundImg === null) {
         return <Progress.Circle size={30} indeterminate={true} />
     }
@@ -37,30 +76,29 @@ const WeatherPanel = (props: WeatherPanelProps) => {
             <View style={styles.container}>
                 <View>
                     <View style={styles.containerRow}>
-                        <Text style={styles.label}>Current Temperature:</Text>
-                        <Text style={styles.data} testID="temp_label"> {temp} &deg; {props.imperial ? 'F' : 'C'}</Text>
+                        <Text style={styles.label}>Current Temperature: </Text>
+                        <Text style={styles.data} testID="temp-label">{labelText.temp}</Text>
                     </View>
                     <View style={styles.containerRow}>
-                        <Text style={styles.label}>Feels Like:</Text>
-                        <Text style={styles.data} testID="feels_like_label"> {feelsLike} &deg; {props.imperial ? 'F' : 'C'}</Text>
+                        <Text style={styles.label}>Feels Like: </Text>
+                        <Text style={styles.data} testID="feels-like-label">{labelText.feelsLike}</Text>
                     </View>
                     <View style={styles.containerRow}>
-                        <Text style={styles.label}>Cloud Coverage:</Text>
-                        <Text style={styles.data} testID='cloud_coverage_label'> {props.weather.current.cloud} %</Text>
+                        <Text style={styles.label}>Cloud Coverage: </Text>
+                        <Text style={styles.data} testID='cloud-coverage-label'>{labelText.cloudCoverage}</Text>
                     </View>
                     <View style={styles.containerRow}>
-                        <Text style={styles.label}>Humidity:</Text>
-                        <Text style={styles.data} testID='humidity_label'> {props.weather.current.humidity} %</Text>
+                        <Text style={styles.label}>Humidity: </Text>
+                        <Text style={styles.data} testID='humidity-label'>{labelText.humidity}</Text>
                     </View>
                     <View style={styles.containerRow}>
-                        <Text style={styles.label}>Wind direction:</Text>
-                        <Text style={styles.data} testID='wind_direction_label'> {props.weather.current.wind_dir}</Text>
+                        <Text style={styles.label}>Wind direction: </Text>
+                        <Text style={styles.data} testID='wind-direction-label'>{labelText.windDir}</Text>
                     </View>
                     <View style={styles.containerRow}>
-                        <Text style={styles.label}>Wind speed:</Text>
-                        <Text style={styles.data} testID='wind_speed_label'> {windSpeed} {props.imperial ? "m":"km"}/h</Text>
+                        <Text style={styles.label}>Wind speed: </Text>
+                        <Text style={styles.data} testID='wind-speed-label'>{labelText.windSpeed}</Text>
                     </View>
-
 
                 </View>
             </View>
