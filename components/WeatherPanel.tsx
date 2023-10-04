@@ -73,7 +73,7 @@ const WeatherPanel = (props: WeatherPanelProps) => {
 
     return (
         <ImageBackground source={backgroundImg} style={styles.backgroundImg} imageStyle={{opacity: 0.5}}>
-            <View style={styles.container}>
+            <View style={styles.container} testID="weather-container-view">
                 <View>
                     <View style={styles.containerRow}>
                         <Text style={styles.label}>Current Temperature: </Text>

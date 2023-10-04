@@ -25,6 +25,9 @@ describe("Weather Panel testing", () => {
     
     it("renders correctly on metric", async () => {
         render(<WeatherPanel weather={WEATHER} imperial={false} />);
+
+        waitFor(() => screen.findByTestId("weather-container-view"));
+
         const tempLabel = await waitFor(() => screen.queryByTestId('temp-label'));
         expect(tempLabel?.props.children).toEqual('99 ° C');
 
@@ -47,6 +50,8 @@ describe("Weather Panel testing", () => {
     it("renders correctly on imperial system", async () => {
         render(<WeatherPanel weather={WEATHER} imperial={true}/>);
 
+        waitFor(() => screen.findByTestId("weather-container-view"));
+
         const tempLabel = await waitFor(() => screen.queryByTestId('temp-label'));
         expect(tempLabel?.props.children).toEqual('99 ° F');
 
@@ -68,6 +73,8 @@ describe("Weather Panel testing", () => {
 
     it("renders correctly when no data available", async () => {
         render(<WeatherPanel weather={undefined} imperial={false} />);
+
+        waitFor(() => screen.findByTestId("weather-container-view"));
 
         const tempLabel = await waitFor(() => screen.queryByTestId('temp_label'));
         expect(tempLabel).toBeNull();

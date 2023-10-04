@@ -35,7 +35,7 @@ const CityPanel = (props: CityPanelProps) => {
     return (
         <View style={styles.container}>
             <ImageBackground source={backgroundImg} style={styles.cityBackgroundImg} imageStyle={{opacity: 0.9}}>
-                <Text style={styles.cityNameText}>{props.cityName}</Text>
+                <Text style={styles.cityNameText} testID="city-name-label">{props.cityName}</Text>
             </ImageBackground>
         </View>
     );
