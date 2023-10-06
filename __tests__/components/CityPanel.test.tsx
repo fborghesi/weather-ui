@@ -1,6 +1,5 @@
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react-native';
-import Weather from 'types/Weather';
 import CityPanel from "@/components/CityPanel";
 
 

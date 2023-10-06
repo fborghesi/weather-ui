@@ -12,8 +12,8 @@ const weatherCodeImgMap = {
     '1000': require(`../assets/images/weather/sunny-background.jpg`),
     '1003': require(`../assets/images/weather/partly-cloudy-background.jpg`),
     '1009': require(`../assets/images/weather/night-background.jpg`),
+    '1030': require(`../assets/images/weather/mist-background.jpg`),
 };
-
 
 class LabelText {
     temp: string;

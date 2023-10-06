@@ -1,19 +1,24 @@
 import { useEffect, useState, useRef } from 'react';
 import * as Progress from 'react-native-progress';
-import { StyleSheet, View, Dimensions, Text } from 'react-native';
+import { StyleSheet, View, Dimensions, Text, Pressable } from 'react-native';
 import Carousel from 'react-native-snap-carousel';
-import Weather from '../types/Weather';
+import Weather from '@/types/Weather';
 import WeatherPanel from '../components/WeatherPanel';
 import CityPanel from './CityPanel';
 import WeatherAPI from '../services/WeatherAPI';
+import Preferences from '../services/Preferences';
 import { API_KEY } from "@env";
+import CitySelectorDialog from './CitySelectorDialog';
 
-const defaultCities = ['Sydney', 'Rome', 'London', 'Buenos Aires'];
+const defaultCities = ['Buenos Aires'];
+const preferences = new Preferences();
 
 const MainScreen = () => {
     const weatherApi = new WeatherAPI(API_KEY);
+    const [preferredCities, setPreferredCities] = useState<string[] | null>(null);
     const [entries, setEntries] = useState<Array<Weather>>(Array<Weather>());
     const [errorMessage, setErrorMessage] = useState<String|null>(null);
+    const [citySelectorVisible, setCitySelectorVisible] = useState<boolean>(false);
     const width = Dimensions.get('window').width;
     const height = Dimensions.get('window').height;
 
@@ -29,11 +34,39 @@ const MainScreen = () => {
             }
         };
         
-        updateWeather(defaultCities);
-    }, []);
+        async function updatePreferredCities() {
+            const cities = await preferences.getPreferredCities();
+            if (cities.length) {
+                updateWeather(cities);        
+            }
+            else {
+                updateWeather([defaultCities]);
+            }
+        }
+        
+        updatePreferredCities();
+        
+    }, [preferredCities]);
+
+    const addRemoveCitiesHandler = () => {
+        setCitySelectorVisible(true);
+    };
+
+    const citySelectorCloseHandler = (cityNames: string[]) => {
+        if (cityNames) {
+            preferences.setPreferredCities(cityNames);
+            setPreferredCities(cityNames);
+        }
+
+        setCitySelectorVisible(false);
+    };
     
     if (errorMessage) {
         return <Text style={styles.errorMessage}>{errorMessage}</Text>
+    }
+
+    if (citySelectorVisible) {
+        return <CitySelectorDialog onClose={citySelectorCloseHandler} cityNames={entries.map(c => c.location.name)}/>
     }
 
     if (entries.length === 0) {
@@ -64,6 +97,9 @@ const MainScreen = () => {
                 vertical={false}
                 onSnapToItem={(index) => console.log('current index:', index)}  
             />
+            <Pressable onPress={addRemoveCitiesHandler} style={styles.button}>
+                <Text style={styles.buttonText}>Add/Remove Cities</Text>
+            </Pressable>
         </View>
     );
 
@@ -93,6 +129,22 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
         fontSize: 14,
         color: 'red',
+    },
+    button: {
+        alignItems: 'center',
+        justifyContent: 'center',
+        paddingVertical: 12,
+        paddingHorizontal: 32,
+        borderRadius: 4,
+        elevation: 3,
+        backgroundColor: '#1976d2',
+    },
+    buttonText: {
+        fontSize: 16,
+        lineHeight: 21,
+        fontWeight: 'bold',
+        letterSpacing: 0.25,
+        color: 'white',
     },
 });
 
