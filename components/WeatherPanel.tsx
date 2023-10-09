@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { StyleSheet, View, Text, ImageBackground, ImageSourcePropType } from 'react-native';
 import Weather from '../types/Weather';
 
+
 interface WeatherPanelProps {
     weather: Weather,
     imperial?: boolean,    
@@ -66,6 +67,10 @@ const WeatherPanel = (props: WeatherPanelProps) => {
 
         setLabelText(labelText);
     }, [props.weather]);
+
+    const renderError = () => {
+        return (<p>Could not get Weather data from API.</p>);
+    };
     
     if (backgroundImg === null) {
         return <Progress.Circle size={30} indeterminate={true} />

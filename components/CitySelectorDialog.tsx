@@ -1,9 +1,8 @@
 import { useEffect, useState, useRef } from 'react';
-import { StyleSheet, View, Pressable, Text, ImageBackground } from 'react-native';
+import { StyleSheet, View, Pressable, Text } from 'react-native';
 import { CheckBoxList, CheckBoxListItem } from './CheckBoxList';
 import { CityService } from '../services/CityService';
-
-const GENERIC_CITY_BKG = require('../assets/images/generic-city.jpg');
+import BaseDialog from './BaseDialog';
 
 type CitySelectorDialogCloseHandler = (cityNames: string[]) => void;
 
@@ -24,24 +23,20 @@ const CitySelectorDialog = (props: CitySelectorDialogProperties) => {
     }, [props.cityNames]);
     
     return (
-        <View style={styles.container}>
-            <ImageBackground source={GENERIC_CITY_BKG} imageStyle={{opacity: 0.5}} style={styles.background}>
-                
-                <Text style={styles.title}>City Selection</Text>
-                <CheckBoxList items={cityData}/>
+        <BaseDialog title="City Selection">
+            <CheckBoxList items={cityData}/>
 
-                <View style={styles.buttonBar}>
-                    <Pressable onPress={() => props.onClose(cityData.filter(c => c.checked).map(c => c.text))} style={styles.okButton}>
-                        <Text style={styles.buttonText}>Ok</Text>
-                    </Pressable>
+            <View style={styles.buttonBar}>
+                <Pressable onPress={() => props.onClose(cityData.filter(c => c.checked).map(c => c.text))} style={styles.okButton}>
+                    <Text style={styles.buttonText}>Ok</Text>
+                </Pressable>
 
-                    <Pressable onPress={() => props.onClose(undefined)} style={styles.cancelButton}>
-                        <Text style={styles.buttonText}>Cancel</Text>
-                    </Pressable>
+                <Pressable onPress={() => props.onClose(undefined)} style={styles.cancelButton}>
+                    <Text style={styles.buttonText}>Cancel</Text>
+                </Pressable>
 
-                </View>
-            </ImageBackground>
-        </View>
+            </View>
+        </BaseDialog>
     );
 
 };

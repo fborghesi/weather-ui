@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState } from 'react';
 import * as Progress from 'react-native-progress';
 import { StyleSheet, View, Dimensions, Text, Pressable } from 'react-native';
 import Carousel from 'react-native-snap-carousel';
@@ -7,64 +7,84 @@ import WeatherPanel from '../components/WeatherPanel';
 import CityPanel from './CityPanel';
 import WeatherAPI from '../services/WeatherAPI';
 import Preferences from '../services/Preferences';
-import { API_KEY } from "@env";
 import CitySelectorDialog from './CitySelectorDialog';
+import WeatherAPIError from '../services/WeatherAPIError';
+import APIKeyDialog from './APIKeyDialog';
 
 const defaultCities = ['Buenos Aires'];
-const preferences = new Preferences();
 
 const MainScreen = () => {
-    const weatherApi = new WeatherAPI(API_KEY);
+    const [apiKey, setAPIKey] = useState<string | null>(null);
     const [preferredCities, setPreferredCities] = useState<string[] | null>(null);
     const [entries, setEntries] = useState<Array<Weather>>(Array<Weather>());
-    const [errorMessage, setErrorMessage] = useState<String|null>(null);
     const [citySelectorVisible, setCitySelectorVisible] = useState<boolean>(false);
+    const [apiKeyFailed, setAPIKeyFailed] = useState<boolean>(false);
     const width = Dimensions.get('window').width;
     const height = Dimensions.get('window').height;
 
     useEffect(() => {
+        const loadPreferredCities = async ()  => {
+            setAPIKey(await Preferences.getWeatherAPIKey());
+            
+            const cities = await Preferences.getPreferredCities();
+            setPreferredCities(cities ? cities : defaultCities);
+        }       
+        
+        loadPreferredCities();
+    }, []);
+
+    
+    const _newKeyProvidedHandler = (newKey: string) => {
+        Preferences.setWeatherAPIKey(newKey);
+        WeatherAPI.setAPIKey(newKey);
+        setAPIKeyFailed(false);
+    };
+
+
+    // get weather from API when preferred cities change
+    useEffect(() => {
         async function updateWeather(cities) {
-            setErrorMessage(null);
             try {
-                const entries = await weatherApi.getWeatherMultiple(cities);
-                setEntries(entries);    
+                const entries = await WeatherAPI.getWeatherMultiple(cities);
+                setEntries(entries);
             }
             catch(error) {
-                setErrorMessage(`Failed to load wather data: ${error.message}`);
+                if (error instanceof WeatherAPIError) {
+                    const weatherAPIError = error as WeatherAPIError;
+                    if (weatherAPIError.apiCode === 2008) {
+                        setAPIKeyFailed(true);
+                    }
+                    return;
+                }
+
+                throw error;
             }
         };
         
-        async function updatePreferredCities() {
-            const cities = await preferences.getPreferredCities();
-            if (cities.length) {
-                updateWeather(cities);        
-            }
-            else {
-                updateWeather([defaultCities]);
-            }
+        if (preferredCities) {
+            updateWeather(preferredCities);
         }
         
-        updatePreferredCities();
-        
-    }, [preferredCities]);
+    }, [apiKeyFailed, preferredCities]);
 
+    
     const addRemoveCitiesHandler = () => {
         setCitySelectorVisible(true);
     };
 
     const citySelectorCloseHandler = (cityNames: string[]) => {
         if (cityNames) {
-            preferences.setPreferredCities(cityNames);
+            Preferences.setPreferredCities(cityNames);
             setPreferredCities(cityNames);
         }
 
         setCitySelectorVisible(false);
     };
-    
-    if (errorMessage) {
-        return <Text style={styles.errorMessage}>{errorMessage}</Text>
-    }
 
+    if (apiKeyFailed) {
+        return <APIKeyDialog apiKey={ apiKey } onNewKeyProvided={_newKeyProvidedHandler} />
+    }
+    
     if (citySelectorVisible) {
         return <CitySelectorDialog onClose={citySelectorCloseHandler} cityNames={entries.map(c => c.location.name)}/>
     }
@@ -124,11 +144,6 @@ const styles = StyleSheet.create({
         overflow: "hidden",
         backgroundColor: "#ffffff",
 
-    },
-    errorMessage: {
-        fontWeight: 'bold',
-        fontSize: 14,
-        color: 'red',
     },
     button: {
         alignItems: 'center',
