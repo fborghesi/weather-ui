@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { StyleSheet, Text, TextInput, Pressable } from 'react-native';
+import { StyleSheet, Text, TextInput, Pressable} from 'react-native';
+import * as Linking from 'expo-linking';
 import BaseDialog from './BaseDialog';
 
 const GENERIC_CITY_BKG = require('../assets/images/generic-city.jpg');
@@ -20,7 +21,13 @@ const APIKeyDialog = (props: APIKeyDialogProps) => {
 
     return (
         <BaseDialog title="Invalid API Key">
-                <Text style={styles.explainMsg}>The API Key provided was rejected by the server. You may provide a new API Key to fix the problem below:</Text>
+                <Text style={styles.explainMsg}>The API Key provided was rejected by the server.</Text>
+                <Text>Please provide a valid API key to fix this problem, if you don't have it you'll want to visit WeatherAPI.com to get one:</Text>
+                
+                <Pressable onPress={() => Linking.openURL('https://api.weatherapi.com')} style={styles.linkButton}>
+                    <Text style={styles.linkText}>Visit WeatherAPI.com</Text>
+                </Pressable>
+
                 <TextInput
                     style={styles.input}
                     value={newKey}
@@ -62,6 +69,26 @@ const styles = StyleSheet.create({
         letterSpacing: 0.25,
         color: 'white',
     },
+    linkButton: {
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginTop: 20,
+        paddingVertical: 12,
+        paddingHorizontal: 32,
+        borderRadius: 4,
+        elevation: 3,
+        backgroundColor: 'transparent',
+        borderColor: '#1976d2',
+        borderWidth: 2,
+    },
+    linkText: {
+        fontSize: 16,
+        lineHeight: 21,
+        fontWeight: 'bold',
+        letterSpacing: 0.25,
+        color: '#1976d2',
+    },
+
 });
 
 export default APIKeyDialog;
